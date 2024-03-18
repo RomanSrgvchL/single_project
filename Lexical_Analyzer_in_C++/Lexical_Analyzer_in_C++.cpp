@@ -5,43 +5,21 @@
 using namespace std;
 
 
-void Unification(vector<string>& lexemes, vector<string>& space, string& s1, string& s2)
-{
-	for (int i = 0; i < lexemes.size(); i++)
-	{
-		if (lexemes[i] != s1)
-			space.push_back(lexemes[i]);
-		else if ((i + 1 < lexemes.size()) && (lexemes[i + 1] == s2))
-		{
-			space.push_back(s1 + s2);
-			i++;
-		}
-		else
-			space.push_back(lexemes[i]);
-	}
-	lexemes.clear();
-	for (int i = 0; i < space.size(); i++)
-		lexemes.push_back(space[i]);
-	space.clear();
-}
-
-
 int main()
 {
-
 	setlocale(0, "");
 
 	vector<string> tokens =
 	{
 	"(", ")", "[", "]", "{", "}",
 	"int", "double", "char", "string",
-	"=", "+", "-", "*", "/", "%", "++", "--", ">", "<", ">=", "<=", "==", "!=", "/=", "+=", "-=", "%=", "*=", "|", "&", "||", "&&",
-	"\"", "\'", ".", ",", "//", ";", "<<", ">>",
-	"cout", "cin", "break", "return", "#include", "#define", "if", "for", "else", "while", "do", "vector",
+	"\"", "\'", ".", ",", "//", ";", 
+	"=", "+", "-", "*", "/", "%",  ">", "<",  "|", "&", "!",
+	"<<", ">>", "||", "&&","++", "--", ">=", "<=", "==", "!=", "/=", "+=", "-=", "%=", "*=",
 	};
-	
+	//16 - 26, 27 - 41
 
-	int count = 0, flag = 1;
+	bool utification = false;
 	vector<string> lexemes, space;
 	vector<char> code, copycode;
 	string lexeme, str, end = "end";
@@ -60,6 +38,7 @@ int main()
 	code.pop_back();
 	
 	#pragma region Delete
+	int count = 0, flag = 1;
 	for (int i = 0; i < code.size(); i++)
 	{
 		if ((code[i] != '\"') && (count % 2 == 0))
@@ -118,17 +97,75 @@ int main()
 			{
 				if (lexeme == tokens[n])
 				{
-					lexemes.push_back(tokens[n]);
-					lexeme = "";
-					break;
+					if ((n > 15) && (n < 27) && (i + 1 < code.size()))
+					{
+						string x = string(1, code[i]) + string(1, code[i + 1]);
+						for (int t = 27; t < 42; t++)
+						{
+							if (x == tokens[t])
+							{
+								lexemes.push_back(x);
+								lexeme = "";
+								i++;
+								n = tokens.size();
+								utification = true;
+								break;
+							}
+						}
+						if (!utification)
+						{
+							lexemes.push_back(tokens[n]);
+							lexeme = "";
+							break;
+						}
+						else utification = false;
+					}
+					else 
+					{
+						lexemes.push_back(tokens[n]);
+						lexeme = "";
+						break;
+					}
+					
 				}
 				else if (lexeme.find(tokens[n]) != std::string::npos)
 				{ 
-					lexeme.pop_back();
-					lexemes.push_back(lexeme);
-					lexemes.push_back(tokens[n]);
-					lexeme = "";
-					break;
+					if ((n > 15) && (n < 27) && (i + 1 < code.size()))
+					{
+						string x = string(1, code[i]) + string(1, code[i + 1]);
+						for (int t = 27; t < 42; t++)
+						{
+							if (x == tokens[t])
+							{
+								lexeme.pop_back();
+								lexemes.push_back(lexeme);
+								lexemes.push_back(x);
+								lexeme = "";
+								i++;
+								n = tokens.size();
+								utification = true;
+								break;
+							}
+						}
+						if (!utification)
+						{
+							lexeme.pop_back();
+							lexemes.push_back(lexeme);
+							lexemes.push_back(tokens[n]);
+							lexeme = "";
+							break;
+						}
+						else utification = false;
+					}
+					else
+					{
+						lexeme.pop_back();
+						lexemes.push_back(lexeme);
+						lexemes.push_back(tokens[n]);
+						lexeme = "";
+						break;
+					}
+
 				}
 			}
 		}
@@ -137,36 +174,10 @@ int main()
 			if ((lexeme != ""))
 				lexemes.push_back(lexeme);
 			if (code[i] == '\n')
-			{
-				lexeme = "\n";
-				lexemes.push_back(lexeme);
-			}		
+				lexemes.push_back("\n");	
 			lexeme = "";
 		}
 	}
-
-	#pragma region Unification
-	for (int i = 0; i < lexemes.size(); i++)
-		if ((lexemes[i] != "<") && (lexemes[i] != ">") && (lexemes[i] != "+") && (lexemes[i] != "-") && (lexemes[i] != "=") && (lexemes[i] != "%") &&
-			(lexemes[i] != "*") && (lexemes[i] != "/") && (lexemes[i] != "!"))
-			space.push_back(lexemes[i]);
-		else if ((i + 1 < lexemes.size()) && ((lexemes[i] + lexemes[i + 1] == "<<") || (lexemes[i] + lexemes[i + 1] == "<<") || (lexemes[i] + lexemes[i + 1] == ">>") || 
-			(lexemes[i] + lexemes[i + 1] == "<<") || (lexemes[i] + lexemes[i + 1] == "==") || (lexemes[i] + lexemes[i + 1] == "++") || (lexemes[i] + lexemes[i + 1] == "--") || 
-			(lexemes[i] + lexemes[i + 1] == "+=") || (lexemes[i] + lexemes[i + 1] == "-=") || (lexemes[i] + lexemes[i + 1] == "*=") || (lexemes[i] + lexemes[i + 1] == "/=") || 
-			(lexemes[i] + lexemes[i + 1] == "%=") || (lexemes[i] + lexemes[i + 1] == "!=")))
-			{
-				space.push_back(lexemes[i] + lexemes[i + 1]);
-				i++;
-			}
-		else
-			space.push_back(lexemes[i]);
-
-	lexemes.clear();
-	for (int i = 0; i < space.size(); i++)
-		lexemes.push_back(space[i]);
-	space.clear();
-
-	#pragma endregion
 	
 	cout << "-------------\n";
 	for (int i = 0; i < lexemes.size(); i++)
