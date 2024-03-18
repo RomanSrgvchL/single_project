@@ -42,10 +42,8 @@ int main()
 	for (int i = 0; i < code.size(); i++)
 	{
 		if ((code[i] != '\"') && (count % 2 == 0))
-		{
 			copycode.push_back(code[i]);
-		}
-		else if (code[i] == '\"')
+		else if ((code[i] == '\"') && !((i != 0) && (code[i - 1] == '\\')))
 		{
 			copycode.push_back(code[i]);
 			count += 1;
@@ -56,10 +54,8 @@ int main()
 	for (int i = 0; i < copycode.size(); i++)
 	{
 		if ((copycode[i] != '\'') && (count % 2 == 0))
-		{
 			code.push_back(copycode[i]);
-		}
-		else if (copycode[i] == '\'')
+		else if ((copycode[i] == '\'') && !((i != 0) && (copycode[i - 1] == '\\')))
 		{
 			code.push_back(copycode[i]);
 			count += 1;
@@ -69,17 +65,11 @@ int main()
 	for (int i = 1; i < code.size(); i++)
 	{
 		if (!((code[i - 1] == '/') && (code[i] == '/')) && (flag != 0))
-		{
 			copycode.push_back(code[i - 1]);
-		}
 		else if ((code[i - 1] == '/') && (code[i] == '/'))
-		{
 			flag = 0;
-		}
 		else if (code[i] == '\n')
-		{
 			flag = 1;
-		}
 	};
 	if (flag == 1) copycode.push_back(code.back());
 	code.clear();
