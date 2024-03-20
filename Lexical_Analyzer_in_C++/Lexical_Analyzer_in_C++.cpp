@@ -8,11 +8,10 @@ using namespace std;
 int main()
 {
 	setlocale(0, "");
-
-	vector<string> tokens =
+	vector<string> tokens = 
 	{
 	"(", ")", "[", "]", "{", "}",
-	"\"", "\'", ".", ",", ";", 
+	"\"", "\'", ".", ",", ";",
 	"=", "+", "-", "*", "/", "%",  ">", "<",  "|", "&", "!",
 	"<<", ">>", "||", "&&","++", "--", ">=", "<=", "==", "!=", "/=", "+=", "-=", "%=", "*=",
 	"int", "double", "char", "string"
@@ -55,29 +54,37 @@ int main()
 	string lexeme, str, end = "end";
 
 	cout << "Введите ваш код (для завершения введите end):\n\n";
-	
+
 	// записал код посимвольно в code
 	while (str != end)
 	{
 		getline(cin, str);
 		if (str == end) break;
 		for (int i = 0; i < str.length(); i++)
-			code.push_back(str[i]);	
+			code.push_back(str[i]);
 		code.push_back('\n');
 	}
-	code.pop_back();
-	
-	#pragma region Delete
+	if (code.size() > 1) code.pop_back();
+
+	if (code.size() == 0)
+	{
+		cout << "Вы ничего не ввели";
+		return 0;
+	}
+
+#pragma region Delete
 	int count = 0, flag = 1;
 	for (int i = 0; i < code.size(); i++)
 	{
 		if ((code[i] != '\"') && (count % 2 == 0))
 			copycode.push_back(code[i]);
-		else if ((code[i] == '\"') && !((i != 0) && (code[i - 1] == '\\')))
+		else if ((code[i] == '\"') && !((i > 1) && (code[i - 1] == '\\') && (code[i - 2] != '\\')))
 		{
 			copycode.push_back(code[i]);
 			count += 1;
 		}
+		else if ((code[i] == '\"') && (i > 1) && (code[i - 1] == '\\') && (code[i - 2] != '\\'))
+			copycode.push_back(code[i]);
 	}
 	count = 0;
 	code.clear();
@@ -85,11 +92,13 @@ int main()
 	{
 		if ((copycode[i] != '\'') && (count % 2 == 0))
 			code.push_back(copycode[i]);
-		else if ((copycode[i] == '\'') && !((i != 0) && (copycode[i - 1] == '\\')))
+		else if ((copycode[i] == '\'') && !((i > 1) && (copycode[i - 1] == '\\') && (copycode[i - 2] != '\\')))
 		{
 			code.push_back(copycode[i]);
 			count += 1;
 		}
+		else if ((copycode[i] == '\'') && (i > 1) && (copycode[i - 1] == '\\') && (copycode[i - 2] != '\\'))
+			code.push_back(copycode[i]);
 	}
 	copycode.clear();
 	for (int i = 1; i < code.size(); i++)
@@ -106,7 +115,7 @@ int main()
 	for (int i = 0; i < copycode.size(); i++)
 		code.push_back(copycode[i]);
 	copycode.clear();
-	#pragma endregion
+#pragma endregion
 
 	// нахожу лексемы
 	for (int i = 0; i < code.size(); i++)
@@ -116,7 +125,8 @@ int main()
 			lexeme += code[i];
 			for (int n = 0; n < tokens.size(); n++)
 			{
-				if (lexeme == tokens[n])
+				if ((lexeme == tokens[n]) && !(((lexeme == "int") || (lexeme == "double") || (lexeme == "char") ||
+					(lexeme == "string")) && (i + 1 < code.size()) && (code[i + 1] != ' ')))
 				{
 					if ((n >= a[4]) && (n <= a[5]) && (i + 1 < code.size()))
 					{
@@ -149,9 +159,9 @@ int main()
 					}
 
 				}
-				else if ((lexeme.find(tokens[n]) != std::string::npos) && !(((lexemes.back() == "int") || (lexemes.back() == "double") || 
-					(lexemes.back() == "char") || (lexemes.back() == "string")) &&
-					!((code[i] == '(') || (code[i] == '[') || (code[i] == '{') || (code[i] == ';'))))
+				else if ((lexeme.find(tokens[n]) != std::string::npos) && !(((lexemes.size() != 0) && ((lexemes.back() == "int") || (lexemes.back() == "double") ||
+					(lexemes.back() == "char") || (lexemes.back() == "string"))) &&
+					!((code[i] == '(') || (code[i] == '[') || (code[i] == '{') || (code[i] == ';') || (code[i] == ','))) && !((n >= 37) && (n <= 40)))
 				{
 					if ((n >= a[4]) && (n <= a[5]) && (i + 1 < code.size()))
 					{
@@ -190,6 +200,11 @@ int main()
 					}
 
 				}
+				else if ((i + 1 == code.size()) && (n + 1 == tokens.size()))
+				{
+					lexemes.push_back(lexeme);
+					break;
+				}
 			}
 		}
 		else
@@ -201,11 +216,13 @@ int main()
 	}
 
 	cout << "-----------------------------------------------------------\n";
+
+	int lines = 1;
+	cout << lines << ") ";
 	for (int i = 0; i < lexemes.size(); i++)
 		if (lexemes[i] != "\n")
 			cout << lexemes[i] << " ";
-		else cout << endl;
-
+		else cout << endl << ++lines << ") ";
 
 	int brackets[6] = { 0, 0, 0, 0, 0, 0 };
 	// ()[]{};
@@ -227,9 +244,32 @@ int main()
 		cout << "Кол-во открывающихся квадратных скобок не соответствует закрывающимся: " << brackets[2] << " '[' и " << brackets[3] << " ']'" << endl;
 	if (brackets[4] != brackets[5])
 		cout << "Кол-во открывающихся фигурных скобок не соответствует закрывающимся: " << brackets[4] << " '{' и " << brackets[5] << " '}'" << endl;
-	
+
+	// удаляю всё после #include
+	vector<string> copylexemes;
+	for (int i = 0; i < lexemes.size(); i++)
+	{
+		copylexemes.push_back(lexemes[i]);
+		if (lexemes[i] == "#include")
+		{
+			for (i + 1; i < lexemes.size(); i++)
+			{
+				if (lexemes[i] == "\n")
+				{
+					copylexemes.push_back(lexemes[i]);
+					break;
+				}
+			}
+		}
+	}
+	lexemes.clear();
+	for (int i = 0; i < copylexemes.size(); i++)
+		lexemes.push_back(copylexemes[i]);
+
+
 	// проверяю допустимое ли имя идентификатора
-	int lines = 1;
+	lines = 1;
+	bool special = false;
 	for (int i = 0; i < lexemes.size(); i++)
 	{
 		if (lexemes[i] == "\n")
@@ -239,20 +279,24 @@ int main()
 		}
 		for (int n = a[8]; n <= a[9]; n++)
 		{
-			if ((lexemes[i] == tokens[n]) && (i + 1 < lexemes.size()))
+			if ((i + 1 < lexemes.size()) && ((lexemes[i] == tokens[n]) && (lexemes[i + 1] != "*") && (lexemes[i + 1] != ">") || special))
 			{
+				if (special) special = !special;
 				string x = lexemes[i + 1];
 				if ((x[0] == '0') || (x[0] == '1') || (x[0] == '2') || (x[0] == '3') || (x[0] == '4') ||
 					(x[0] == '5') || (x[0] == '6') || (x[0] == '7') || (x[0] == '8') || (x[0] == '9'))
 				{
 					cout << "Идентификатор не должен начинаться с цифры, строка " << lines << endl;
-					n = a[9] + 1;
+					break;
+				}
+				if (x == "\n")
+				{
+					cout << "Отсутствует идентификатор, строка " << lines << endl;
 					break;
 				}
 				if (find(keywords.begin(), keywords.end(), x) != keywords.end())
 				{
 					cout << "Идентификатор не должен совпадать с ключевыми словами, строка " << lines << endl;
-					n = a[9] + 1;
 					break;
 				}
 				for (int m = 0; m < x.length(); m++)
@@ -260,22 +304,80 @@ int main()
 					if (find(valid_characters.begin(), valid_characters.end(), x[m]) == valid_characters.end())
 					{
 						cout << "Недопустимые символы в идентификаторе, строка " << lines << endl;
-						n = a[9] + 1;
 						m = x.length();
 						break;
 					}
 				}
 				i++;
 			}
+			else if ((lexemes[i] == tokens[n]) && (i + 1 < lexemes.size()) && ((lexemes[i + 1] == "*") || (lexemes[i + 1] == ">")))
+			{
+				special = true;
+				break;
+			}
+
+			else if ((lexemes[i] == tokens[n]) && (i + 1 == lexemes.size()))
+			{
+				cout << "Отсутствует идентификатор, строка " << lines << endl;
+				break;
+			}
+
 		}
 	}
+	
+	// посчитать количество ; в for
+	lines = 1;
+	count = 0;
+	for (int i = 0; i < lexemes.size(); i++)
+	{
+		count = 0;
+		if (lexemes[i] == "\n")
+		{
+			lines += 1;
+			continue;
+		}
+		if ((lexemes[i] == "for"))
+		{
+			for (i; (i < lexemes.size()) && (lexemes[i] != "\n"); i++)
+				if (lexemes[i] == ";") count += 1;
+			if (count > 2)
+				cout << "Обнаружены лишние точки с запятой, строка " << lines << endl;
+			else if (count == 1)
+				cout << "Необходима точка с запятой, строка " << lines << endl;
+			else if (count == 0)
+				cout << "Необходимо поставить две точки с запятой, строка " << lines << endl;
+			lines++;
+		}
+	}
+	
+	// стираю всю строку, если в ней есть if for while
+	copylexemes.clear();
+	for (int i = 0; i < lexemes.size(); i++)
+	{
+		copylexemes.push_back(lexemes[i]);
+		if ((lexemes[i] == "if") || (lexemes[i] == "while") || (lexemes[i] == "for") && (i + 1 < lexemes.size()))
+		{
+			for (i + 1; i < lexemes.size(); i++)
+			{
+				if (lexemes[i] == "\n")
+				{
+					copylexemes.push_back(lexemes[i]);
+					break;
+				}
+			}
+		}
+	}
+	lexemes.clear();
+	for (int i = 0; i < copylexemes.size(); i++)
+		lexemes.push_back(copylexemes[i]);
 
-	// точка с запятой в строке с cout cin = /= += -= *= %= ++ -- break return continue
+
+	// точка с запятой в строке с cout cin endl = /= += -= *= %= ++ -- break return continue
 	lines = 1;
 	bool semicolon = false;
 	for (int i = 0; i < lexemes.size(); i++)
 	{
-		if ((lexemes[i] == "cout") || (lexemes[i] == "cin") || (lexemes[i] == "=") || (lexemes[i] == "+=") ||
+		if ((lexemes[i] == "cout") || (lexemes[i] == "cin") || (lexemes[i] == "endl") || (lexemes[i] == "=") || (lexemes[i] == "+=") ||
 			(lexemes[i] == "-=") || (lexemes[i] == "*=") || (lexemes[i] == "/=") || (lexemes[i] == "%n") ||
 			(lexemes[i] == "++") || (lexemes[i] == "--") || (lexemes[i] == "break") || (lexemes[i] == "return") || (lexemes[i] == "continue"))
 		{
