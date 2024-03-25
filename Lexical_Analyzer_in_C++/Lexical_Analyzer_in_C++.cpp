@@ -355,7 +355,8 @@ int main()
 	for (int i = 0; i < lexemes.size(); i++)
 	{
 		copylexemes.push_back(lexemes[i]);
-		if ((lexemes[i] == "if") || (lexemes[i] == "while") || (lexemes[i] == "for") && (i + 1 < lexemes.size()))
+		if ((lexemes[i] == "if") || (lexemes[i] == "while") || (lexemes[i] == "for") || (((lexemes[i] == "int") || (lexemes[i] == "double")
+			|| (lexemes[i] == "char") || (lexemes[i] == "string")) && (i + 2 < lexemes.size()) && (lexemes[i + 1] + lexemes[i + 2] != "()")) && (i + 1 < lexemes.size()))
 		{
 			for (i + 1; i < lexemes.size(); i++)
 			{
@@ -372,14 +373,16 @@ int main()
 		lexemes.push_back(copylexemes[i]);
 
 
-	// точка с запятой в строке с cout cin endl = /= += -= *= %= ++ -- break return continue
+	// точка с запятой в строке с cout cin endl = /= += -= *= %= ++ -- break return continue ) int double string char
 	lines = 1;
 	bool semicolon = false;
 	for (int i = 0; i < lexemes.size(); i++)
 	{
 		if ((lexemes[i] == "cout") || (lexemes[i] == "cin") || (lexemes[i] == "endl") || (lexemes[i] == "=") || (lexemes[i] == "+=") ||
 			(lexemes[i] == "-=") || (lexemes[i] == "*=") || (lexemes[i] == "/=") || (lexemes[i] == "%n") ||
-			(lexemes[i] == "++") || (lexemes[i] == "--") || (lexemes[i] == "break") || (lexemes[i] == "return") || (lexemes[i] == "continue"))
+			(((lexemes[i] == "int") || (lexemes[i] == "double") || (lexemes[i] == "string") || (lexemes[i] == "char")) &&
+			(i + 2 < lexemes.size()) && (lexemes[i + 1] + lexemes[i + 2] == "()")) ||
+			(lexemes[i] == "++") || (lexemes[i] == "--") || (lexemes[i] == "break") || (lexemes[i] == "return") || (lexemes[i] == "continue") || (lexemes[i] == ")"))
 		{
 			for (i; i < lexemes.size(); i++)
 			{
