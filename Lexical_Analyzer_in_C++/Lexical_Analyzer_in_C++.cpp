@@ -5,6 +5,7 @@
 using namespace std;
 
 
+
 int main()
 {
 	setlocale(0, "");
@@ -371,6 +372,8 @@ int main()
 	lexemes.clear();
 	for (int i = 0; i < copylexemes.size(); i++)
 		lexemes.push_back(copylexemes[i]);
+
+
 
 
 	// точка с запятой в строке с cout cin endl = /= += -= *= %= ++ -- break return continue ) int double string char
