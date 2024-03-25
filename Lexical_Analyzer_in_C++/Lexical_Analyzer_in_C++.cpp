@@ -161,7 +161,7 @@ int main()
 				}
 				else if ((lexeme.find(tokens[n]) != std::string::npos) && !(((lexemes.size() != 0) && ((lexemes.back() == "int") || (lexemes.back() == "double") ||
 					(lexemes.back() == "char") || (lexemes.back() == "string"))) &&
-					!((code[i] == '(') || (code[i] == '[') || (code[i] == '{') || (code[i] == ';') || (code[i] == ','))) && !((n >= 37) && (n <= 40)))
+					!((code[i] == '(') || (code[i] == '[') || (code[i] == '{') || (code[i] == ';') || (code[i] == ')') || (code[i] == ','))) && !((n >= 37) && (n <= 40)))
 				{
 					if ((n >= a[4]) && (n <= a[5]) && (i + 1 < code.size()))
 					{
@@ -356,7 +356,7 @@ int main()
 	{
 		copylexemes.push_back(lexemes[i]);
 		if ((lexemes[i] == "if") || (lexemes[i] == "while") || (lexemes[i] == "for") || (((lexemes[i] == "int") || (lexemes[i] == "double")
-			|| (lexemes[i] == "char") || (lexemes[i] == "string")) && (i + 2 < lexemes.size()) && (lexemes[i + 1] + lexemes[i + 2] != "()")) && (i + 1 < lexemes.size()))
+			|| (lexemes[i] == "char") || (lexemes[i] == "string")) && (i + 3 < lexemes.size()) && (lexemes[i + 1] + lexemes[i + 3] != "()")) && (i + 1 < lexemes.size()))
 		{
 			for (i + 1; i < lexemes.size(); i++)
 			{
